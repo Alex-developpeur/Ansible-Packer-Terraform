@@ -1,0 +1,23 @@
+---
+- include_tasks: setup-RedHat.yml
+  when: ansible_os_family == 'RedHat'
+
+- include_tasks: setup-Debian.yml
+  when: ansible_os_family == 'Debian'
+
+- name: install docker
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: "{{ docker_package_state }}"
+    update_cache: true
+  loop: "{{ docker }}"
+
+- name: Ensure Docker is started and enabled at boot.
+  ansible.builtin.service:
+    name: docker
+    state: "{{ docker_service_state }}"
+    enabled: "{{ docker_service_enabled }}"
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- include_tasks: docker-compose.yml
+  when: docker_install_compose | bool

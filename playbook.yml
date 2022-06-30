@@ -1,0 +1,32 @@
+---
+- hosts: all
+  become: true
+
+  tasks:
+
+    - name: Install vim
+      ansible.builtin.apt:
+        name: vim
+        state: present
+
+    - name: Copy file
+      ansible.builtin.copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: "{{ item.owner }}"
+        group: "{{ item.group }}"
+        mode: 0644
+      with_items:
+        - src: "/vagrant/wordpress"
+          dest: "/home/vagrant/"
+          owner: vagrant
+          group: vagrant
+        - src: "/vagrant/ansible"
+          dest: "/etc/"
+          owner: vagrant
+          group: vagrant
+        - src: "/vagrant/data/insecure_private_key"
+          dest: "/home/vagrant/.ssh/insecure_private_key"
+          owner: vagrant
+          group: vagrant
+          mode: 0600

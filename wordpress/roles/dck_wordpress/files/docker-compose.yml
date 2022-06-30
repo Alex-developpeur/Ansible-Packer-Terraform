@@ -1,0 +1,42 @@
+---
+version: "3.3"
+
+services:
+
+  # CONTAINER - MYSQL : https://hub.docker.com/_/mysql
+  db:
+    image: mariadb:latest
+    container_name: wp_mariadb
+    restart: always
+    volumes:
+      - db_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWD
+      MYSQL_DATABASE: $DATABASE_NAME
+      MYSQL_USER: $DB_USER
+      MYSQL_PASSWORD: $DB_PASSWORD
+    networks:
+      - wp
+
+  # CONTAINER - WORDPRESS : https://hub.docker.com/_/wordpress
+  wordpress:
+    depends_on:
+      - db
+    image: wordpress:latest
+    container_name: wp_wordpress
+    restart: always
+    volumes: ["./:/var/www/html"]
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: $WP_DB_USER
+      WORDPRESS_DB_PASSWORD: $WP_DB_PASSWORD
+    ports:
+      - "80:80"
+    networks:
+      - wp
+
+networks:
+  wp:
+
+volumes:
+  db_data:

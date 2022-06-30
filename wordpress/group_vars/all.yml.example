@@ -1,0 +1,6 @@
+ansible_mysql_root_pswd:
+ansible_mysql_database:
+ansible_mysql_user:
+ansible_mysql_password:
+ansible_wp_db_user:
+ansible_wp_db_password:

@@ -1,0 +1,93 @@
+image: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
+variables:
+  TF_ROOT: ${CI_PROJECT_DIR}/terraform
+  PA_ROOT: ${CI_PROJECT_DIR}/packer
+  TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/${CI_PROJECT_NAME}
+  #AMI_NAME: "alex-packer-ansible-debian-git"
+
+cache:
+  key: ${CI_PROJECT_NAME}
+  paths:
+    - ${TF_ROOT}/.terraform
+
+stages:
+  - linting
+  - build
+  - plan
+  - deploy
+  - destroy
+
+packer-valid:
+  image:
+    name: registry-gr3.cefim-formation.org/devops/ubuntu-ssh/packer-ansible
+    entrypoint:
+      - '/usr/bin/env'
+      - 'PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+  stage: linting
+  script:
+    - cd ${PA_ROOT}
+    - packer init .
+    - packer validate .
+
+terraform-valid:
+  stage: linting
+  script:
+    - cd ${TF_ROOT}
+    - gitlab-terraform init
+    - gitlab-terraform validate
+
+packer-build:
+  image:
+    name: registry-gr3.cefim-formation.org/devops/ubuntu-ssh/packer-ansible
+    entrypoint:
+      - '/usr/bin/env'
+      - 'PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+  stage: build
+  needs: 
+    - job: packer-valid
+  script:
+    - export AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID"
+    - export AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY"
+    - cd ${PA_ROOT}
+    - packer init .
+    - packer build .
+    - AMI_ID=$(jq -r '.builds[-1].artifact_id' manifest.json | cut -d ":" -f2)
+    - 'curl --request PUT --header "PRIVATE-TOKEN: ${JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/variables/AWS_AMI_ID" --form "value=$AMI_ID"'
+#  when: manual
+
+terraform-plan:
+  stage: plan
+  needs: 
+    - job: packer-build
+  script:
+    - cd ${TF_ROOT}
+    - gitlab-terraform plan -var="ami_id=$AWS_AMI_ID"
+  artifacts:
+    name: plan
+    paths:
+      - ${TF_ROOT}/plan.cache
+
+# Separate apply job for manual launching Terraform as it can be destructive
+# action.
+terraform-apply:
+  stage: deploy
+  needs:
+    - job: terraform-plan
+  environment:
+    name: production
+  script:
+    - cd ${TF_ROOT}
+    - gitlab-terraform apply
+  dependencies:
+    - terraform-plan
+#  when: manual
+
+terraform-destroy:
+  stage: destroy
+  needs: 
+    - job: terraform-apply
+  before_script:
+    - cd ${TF_ROOT}
+  script:
+    - gitlab-terraform destroy -var="ami_id=$AWS_AMI_ID"
+  when: manual

@@ -1,0 +1,8 @@
+---
+- name: launch roles
+  hosts: all
+  become: true
+  roles:
+#    - sys_common
+#    - sys_docker
+#    - dck_wordpress

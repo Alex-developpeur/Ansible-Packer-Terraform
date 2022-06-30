@@ -1,0 +1,19 @@
+---
+- name: Ensure old versions of Docker are not installed.
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: absent
+  loop: "{{ docker }}"
+
+- name: Add Docker GPG key.
+  ansible.builtin.rpm_key:
+    key: "{{ docker_yum_gpg_key }}"
+    state: present
+
+- name: Add Docker repository.
+  ansible.builtin.get_url:
+    url: "{{ docker_yum_repo_url }}"
+    dest: '/etc/yum.repos.d/docker-{{ docker_edition }}.repo'
+    owner: root
+    group: root
+    mode: 0644

@@ -1,0 +1,41 @@
+---
+# sudo rm /etc/apt/sources.list.d/download_docker_com_linux_debian.list
+# apt-key list
+# sudo apt-key del 0EBFCD88
+# uninstall docker
+# sudo systemctl stop docker.socket
+# sudo apt purge docker* -y
+# sudo journalctl -f -u docker
+
+- name: Stop and disable unused services
+  ansible.builtin.service: name={{ item }} state=stopped enabled=no
+  register: unused_disable
+  failed_when: "unused_disable is failed and ('find' not in unused_disable.msg and 'found' not in unused_disable.msg)"
+  with_items:
+    - docker.socket
+
+- name: Ensure old versions of Docker are not installed.
+  ansible.builtin.package:
+    name: "{{ it_docker }}"
+    state: absent
+  loop: "{{ docker }}"
+  loop_control:
+    loop_var: 'it_docker'
+
+- name: Ensure dependencies are installed.
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+  loop: "{{ dependencies }}"
+
+- name: Add Docker apt key.
+  ansible.builtin.apt_key:
+    url: "{{ docker_apt_gpg_key }}"
+    state: present
+
+- name: Add Docker repository.
+  ansible.builtin.apt_repository:
+    repo: "{{ docker_apt_repository }}"
+    state: present
+    update_cache: true

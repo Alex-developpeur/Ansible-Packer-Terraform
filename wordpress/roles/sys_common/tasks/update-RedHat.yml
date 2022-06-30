@@ -1,0 +1,16 @@
+---
+- name: Update all installed packages using YUM module
+  ansible.builtin.yum:
+    name: '*'
+    state: latest
+    update_cache: true
+    update_only: true
+  register: yum_update_status
+
+- name: Remove packates not needed anymore
+  ansible.builtin.yum:
+    autoremove: true
+
+    # - name: Reboot when packages were updated
+    #  reboot:
+    #  when: yum_update_status.changed

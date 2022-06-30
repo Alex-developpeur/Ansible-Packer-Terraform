@@ -1,0 +1,31 @@
+---
+# tasks file for dck-wordpress
+- name: Create directory wordpress.
+  ansible.builtin.file:
+    path: /home/sysadmin/wordpress
+    state: directory
+    mode: "u=rwx,g=rx,o=rx"
+
+- name: Copy file.
+  ansible.builtin.copy:
+    src: "docker-compose.yml"
+    dest: "/home/sysadmin/wordpress/docker-compose.yml"
+    owner: "sysadmin"
+    group: "sysadmin"
+    mode: 0644
+
+- name: Template a file, using symbolic modes (equivalent to 0644)
+  ansible.builtin.template:
+    src: templates/.env.j2
+    dest: "/home/sysadmin/wordpress/.env"
+    owner: sysadmin
+    group: sysadmin
+    mode: u=rw,g=r,o=r
+
+# sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+- name: Run docker compose.
+  ansible.builtin.command: "/usr/local/bin/docker-compose up -d"
+  args:
+    chdir: "/home/sysadmin/wordpress"
+  register: my_output
+  changed_when: my_output.rc != 0

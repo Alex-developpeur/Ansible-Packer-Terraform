@@ -1,0 +1,34 @@
+---
+# tasks file for sys-common
+- name: Create group
+  ansible.builtin.group:
+    name: "sysadmin"
+    gid: 666
+    state: present
+
+- name: Create Users Task
+  ansible.builtin.user:
+    name: "sysadmin"
+    uid: 666
+    state: present
+    shell: /bin/bash
+    group: "sysadmin"
+
+- name: Add sysadmin as sudoer user
+  ansible.builtin.lineinfile:
+    dest: /etc/sudoers
+    state: present
+    backup: true
+    regexp: '^sysadmin ALL\='
+    line: 'sysadmin ALL=(ALL) NOPASSWD:ALL'
+    validate: 'visudo -cf %s'
+
+- name: Set timezone to Europe/Paris
+  community.general.timezone:
+    name: Europe/Paris
+
+- include_tasks: update-RedHat.yml
+  when: ansible_os_family == 'RedHat'
+
+- include_tasks: update-Debian.yml
+  when: ansible_os_family == 'Debian'
