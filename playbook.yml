@@ -1,0 +1,6 @@
+---
+- hosts: all
+  roles:
+    - sys-common
+    - sys-docker
+    - dck-wordpress

@@ -1,0 +1,19 @@
+---
+repos:
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.17.0
+    hooks:
+      - id: yamllint
+        args: ["-c=/mnt/c/vagrant/Ansible/vagrant-ansible-docker/.config/.yamllint", "."]
+
+       
+  - repo:  https://github.com/ansible-community/ansible-lint.git
+    rev: v6.2.2
+    hooks:
+      - id: ansible-lint
+        name: Ansible-lint
+        description: this boot runs ansible-lint
+        entry: ansible-lint --force-color
+        language: python 
+        pass_filenames: false
+        always_run: true  

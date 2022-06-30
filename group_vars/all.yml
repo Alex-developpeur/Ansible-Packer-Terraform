@@ -1,0 +1,6 @@
+ansible_mysql_root_password: secret
+ansible_mysql_database: wordpress
+ansible_wordpress_db_host: sql0l
+ansible_wordpress_db_user: root
+ansible_wordpress_db_password: secret
+ansible_wordpress_db_name: wordpress

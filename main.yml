@@ -1,0 +1,10 @@
+---
+- name: launch roles
+  hosts: all
+  become: yes
+  #become_user: ubuntu
+
+  roles:
+ #    - sys-common
+ #    - sys-docker
+ #    - dck-wordpress

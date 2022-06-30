@@ -1,0 +1,8 @@
+[allsrv]
+default ansible_ssh_host=192.168.134.145 ansible_ssh_port=22 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/mnt/c/Users//CEFIM/.vagrant.d/insecure_private_key'
+
+# Variables for all servers
+[allsrv:vars]
+ansible_ssh_user=vagrant
+ansible_ssh_private_key_file='/mnt/c/Users//CEFIM/.vagrant.d/insecure_private_key'
+ansible_python_interpreter=/usr/bin/python3

@@ -1,0 +1,11 @@
+*.log
+.vagrant
+*/data/
+*/.env
+**/*.pem
+**/*.crt
+**/*.key
+**/passwd
+*/group_vars/*
+!*/group_vars/.gitkeep
+*.terraform

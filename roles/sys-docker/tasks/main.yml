@@ -1,0 +1,25 @@
+---
+# tasks file for sys-docker
+
+- name: patget update
+  command: sudo apt-get update
+
+- name: Install required system packages
+  apt:
+    pkg:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - software-properties-common
+      - python3-pip
+      - virtualenv
+      - python3-setuptools
+      - gnupg 
+      - lsb-release
+    state: latest
+    update_cache: true
+
+- name: install docker
+  ansible.builtin.shell: 
+    cmd: curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh 
+    chdir: /home/sysadmin
