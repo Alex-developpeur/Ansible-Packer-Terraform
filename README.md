@@ -1,5 +1,9 @@
 # Terraform Packer
 
+## Présentation
+Automatisation avec GitLab CI/CD de la création d'une AMI sur AWS avec Packer et configurée avec Ansible, puis création d'une instance ec2 avec cette AMI en utilisant Terraform.
+
+## Réalisation
 Création des fichiers **terraform** avec l'ID de l'AMI AWS
 Lancement des commandes :
 - d'initialisation (init)
